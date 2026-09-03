@@ -272,7 +272,6 @@ class DocumentAnalyzer:
 
         def _extract_driver_license_info(self, text: str) -> DocumentData:
             """Extract information from driver license OCR text"""
-            # Extract document number
             doc_number_match = re.search(r'LICENSE NO: (.*?)\n', text)
             doc_number = doc_number_match.group(1).strip() if doc_number_match else "UNKNOWN"
 
