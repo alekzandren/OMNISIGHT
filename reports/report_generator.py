@@ -16,18 +16,13 @@ class ReportGenerator:
     def __init__(self, output_dir: str = "reports"):
         self.output_dir = output_dir
         os.makedirs(output_dir, exist_ok=True)
-
-        # Initialize Jinja2 environment
         self.template_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "templates")
         os.makedirs(self.template_dir, exist_ok=True)
         self.jinja_env = Environment(loader=FileSystemLoader(self.template_dir))
-
-        # Create default templates if they don't exist
         self._create_default_templates()
 
     def _create_default_templates(self):
         """Create default report templates if they don't exist"""
-        # HTML template
         html_template_path = os.path.join(self.template_dir, "report.html")
         if not os.path.exists(html_template_path):
             with open(html_template_path, "w") as f:
@@ -392,7 +387,6 @@ class ReportGenerator:
 </html>
                 """)
 
-        # JSON template
         json_template_path = os.path.join(self.template_dir, "report.json")
         if not os.path.exists(json_template_path):
             with open(json_template_path, "w") as f:
@@ -430,16 +424,13 @@ class ReportGenerator:
         """Generate an investigation report"""
         logger.info(f"Generating {output_format} report for {data_type}: {query}")
 
-        # Calculate total sources and results
         total_sources = len(results.keys())
         total_results = sum(len(r) for r in results.values())
 
-        # Generate filename if not provided
         if not output_filename:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_filename = f"report_{data_type}_{timestamp}"
 
-        # Prepare template variables
         template_vars = {
             "query": query,
             "data_type": data_type,
@@ -449,7 +440,6 @@ class ReportGenerator:
             **results
         }
 
-        # Generate report based on format
         if output_format == "html":
             output_path = os.path.join(self.output_dir, f"{output_filename}.html")
             await self._generate_html_report(template_vars, output_path)
@@ -475,7 +465,6 @@ class ReportGenerator:
 
     async def _generate_pdf_report(self, template_vars: Dict[str, Any], output_path: str):
         """Generate a PDF report"""
-        # First generate HTML
         template = self.jinja_env.get_template("report.html")
         html_content = template.render(**template_vars)
 
@@ -497,7 +486,6 @@ class ReportGenerator:
         template = self.jinja_env.get_template("report.json")
         json_content = template.render(**template_vars)
 
-        # Parse the rendered JSON to ensure it's valid
         parsed_json = json.loads(json_content)
 
         with open(output_path, "w") as f:
@@ -513,18 +501,15 @@ class ReportGenerator:
         """Generate a summary report with key findings"""
         logger.info(f"Generating summary report for {data_type}: {query}")
 
-        # Generate filename if not provided
         if not output_filename:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             output_filename = f"summary_{data_type}_{timestamp}"
 
         output_path = os.path.join(self.output_dir, f"{output_filename}.txt")
-
-        # Calculate total sources and results
+        
         total_sources = len(results.keys())
         total_results = sum(len(r) for r in results.values())
 
-        # Generate summary content
         with open(output_path, "w") as f:
             f.write("OMNISIGHT INVESTIGATION SUMMARY REPORT\n")
             f.write("=" * 50 + "\n\n")
@@ -534,15 +519,13 @@ class ReportGenerator:
             f.write(f"Total Sources Checked: {total_sources}\n")
             f.write(f"Total Results Found: {total_results}\n\n")
 
-            # Summarize each category
             for category, category_results in results.items():
                 if category_results:
                     f.write(f"{category.upper()} ANALYSIS:\n")
                     f.write("-" * 30 + "\n")
                     f.write(f"Results Found: {len(category_results)}\n")
 
-                    # Add key findings for each result
-                    for result in category_results[:3]:  # Limit to top 3 results
+                    for result in category_results[:3]:
                         if result.get('valid', True):
                             if category == "email":
                                 f.write(f"- {result.get('domain', result.get('email', 'Unknown'))}")
