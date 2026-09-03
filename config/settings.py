@@ -14,7 +14,7 @@ for directory in [DATA_DIR, REPORTS_DIR, LOGS_DIR]:
 
 class Settings(BaseSettings):
     """
-    Основные настройки конфигурации для OmniSight OSINT Framework
+    Basic configuration settings for the OmniSight OSINT Framework
     """
     app_name: str = "OmniSight"
     version: str = "1.0.0"
@@ -174,26 +174,26 @@ class Settings(BaseSettings):
 
     @validator("api_keys", pre=True)
     def validate_api_keys(cls, v):
-        """Проверяет наличие необходимых API ключей"""
+        """Checks for required API keys"""
         required_keys = ["haveibeenpwned"]
         missing_keys = [key for key in required_keys if not v.get(key)]
         if missing_keys:
             import warnings
-            warnings.warn(f"Отсутствуют API ключи для: {', '.join(missing_keys)}")
+            warnings.warn(f"API keys are missing for: {', '.join(missing_keys)}")
         return v
 
     @validator("max_workers")
     def validate_max_workers(cls, v):
-        """Проверяет максимальное количество воркеров"""
+        """Checks maximum worker count"""
         if v <= 0:
-            raise ValueError("max_workers должно быть положительным числом")
+            raise ValueError("max_workers must be a positive number")
         if v > 200:
             import warnings
-            warnings.warn("max_workers слишком большое значение, может вызвать проблемы с производительностью")
+            warnings.warn("max_workers value is too large, which may impact performance")
         return v
 
     def get_proxy_list(self) -> List[str]:
-        """Загружает список прокси из файла"""
+        """Loads the proxy list from a file"""
         if not self.use_proxy:
             return []
 
@@ -207,16 +207,16 @@ class Settings(BaseSettings):
         return proxies
 
     def get_user_agent(self) -> str:
-        """Возвращает случайный User-Agent из списка"""
+        """Returns a random User-Agent from the list"""
         import random
         return random.choice(self.user_agents)
 
     def get_api_key(self, service: str) -> str:
-        """Получает API ключ для указанного сервиса"""
+        """Gets API key for the specified service"""
         return self.api_keys.get(service, "")
 
     def get_module_config(self, module_name: str) -> Dict[str, Any]:
-        """Возвращает конфигурацию для указанного модуля"""
+        """Returns configuration for the specified module"""
         configs = {
             "identity": {
                 "regex_patterns": self.identity_regex,
@@ -241,21 +241,21 @@ settings = Settings()
 
 
 def get_settings() -> Settings:
-    """Возвращает экземпляр настроек"""
+    """Returns a settings instance"""
     return settings
 
 
 def update_settings(**kwargs) -> None:
-    """Обновляет настройки"""
+    """Updates settings"""
     for key, value in kwargs.items():
         if hasattr(settings, key):
             setattr(settings, key, value)
         else:
-            raise ValueError(f"Неизвестный параметр настройки: {key}")
+            raise ValueError(f"Unknown setting parameter: {key}")
 
 
 def save_settings(file_path: str = None) -> None:
-    """Сохраняет настройки в файл"""
+    """Saves settings to file"""
     import json
     from pathlib import Path
 
@@ -275,7 +275,7 @@ def save_settings(file_path: str = None) -> None:
         json.dump(settings_dict, f, indent=4, ensure_ascii=False)
 
 def load_settings(file_path: str = None) -> None:
-    """Загружает настройки из файла"""
+    """Loads settings from file"""
     import json
     from pathlib import Path
 
